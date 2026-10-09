@@ -1,0 +1,23 @@
+# App of apps: the only manifest applied by hand
+#   kubectl apply -n argocd -f argocd/root-app.yaml
+# It syncs everything in argocd/apps (the project + one Application per chart).
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: telecom-gis-root
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/JendoubiMajdi/telecom-gis-gitops.git
+    targetRevision: main
+    path: argocd/apps
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

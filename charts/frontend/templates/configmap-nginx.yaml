@@ -1,0 +1,51 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "frontend.fullname" . }}-nginx
+  labels:
+    {{- include "frontend.labels" . | nindent 4 }}
+data:
+  # Replaces the nginx.conf baked into the image (which proxies to "backend:5000")
+  default.conf: |
+    server {
+        listen 80;
+        server_name _;
+
+        root  /usr/share/nginx/html;
+        index index.html;
+
+        # POI coverage checks send large JSON bodies (backend accepts up to 10mb)
+        client_max_body_size 10m;
+
+        gzip on;
+        gzip_types text/plain text/css application/javascript application/json image/svg+xml;
+
+        # Resolve the backend per request (nginx's resolver ignores search domains, hence the FQDN)
+        resolver {{ .Values.nginx.resolver }} valid=10s ipv6=off;
+
+        location /api/ {
+            set $backend_upstream http://{{ .Values.backend.host }}.{{ .Release.Namespace }}.svc.{{ .Values.nginx.clusterDomain }}:{{ .Values.backend.port }};
+            # No URI part after the variable, so the original /api/... path is passed through
+            proxy_pass $backend_upstream;
+            proxy_http_version 1.1;
+            proxy_set_header Host              $host;
+            proxy_set_header X-Real-IP         $remote_addr;
+            proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            # AI coverage-gap / recommendation calls can take a while
+            proxy_read_timeout 120s;
+        }
+
+        # Hashed build assets can be cached for a long time
+        location /static/ {
+            expires 30d;
+            add_header Cache-Control "public, immutable";
+            try_files $uri =404;
+        }
+
+        # React Router (BrowserRouter): unknown paths fall back to index.html
+        location / {
+            try_files $uri $uri/ /index.html;
+            add_header Cache-Control "no-cache";
+        }
+    }

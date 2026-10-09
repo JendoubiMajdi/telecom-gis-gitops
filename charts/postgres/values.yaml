@@ -1,0 +1,31 @@
+# Name of every resource (and of the Service the backend connects to)
+fullnameOverride: postgres
+
+image:
+  repository: postgis/postgis
+  tag: 16-3.5-alpine
+  pullPolicy: IfNotPresent
+
+# Secret created by hand (see README) with keys:
+#   POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB
+existingSecret: postgres-credentials
+
+service:
+  port: 5432
+
+persistence:
+  size: 5Gi
+  # "" = cluster default StorageClass (minikube: "standard")
+  storageClass: ""
+
+# Mounts files/01-schema.sql into /docker-entrypoint-initdb.d.
+# It only runs when the data volume is empty (first start).
+initSchema:
+  enabled: true
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    memory: 1Gi

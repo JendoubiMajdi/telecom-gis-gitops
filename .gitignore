@@ -1,0 +1,2 @@
+# Real secret values never go to git, only the *.env.example templates
+secrets/*.env

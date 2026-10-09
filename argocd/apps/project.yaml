@@ -1,0 +1,17 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: telecom-gis
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  description: Telecom GIS (frontend, backend, postgres)
+  sourceRepos:
+    - https://github.com/JendoubiMajdi/telecom-gis-gitops.git
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespace: telecom-gis
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
