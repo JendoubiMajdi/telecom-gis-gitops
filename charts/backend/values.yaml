@@ -6,7 +6,7 @@ replicaCount: 1
 image:
   repository: docker.io/majdi99/telecom-backend
   # Released by Jenkins: it bumps this value and pushes, Argo CD syncs it
-  tag: "1.0.0"
+  tag: "9"
   pullPolicy: IfNotPresent
 
 # Only needed for a private registry, e.g. [{ name: regcred }]
