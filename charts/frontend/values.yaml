@@ -6,7 +6,7 @@ image:
   # Built with REACT_APP_API_URL=/api (the Dockerfile default)
   repository: docker.io/majdi99/telecom-frontend
   # Released by Jenkins: it bumps this value and pushes, Argo CD syncs it
-  tag: "1.0.1"
+  tag: "10"
   pullPolicy: IfNotPresent
 
 # Only needed for a private registry, e.g. [{ name: regcred }]
